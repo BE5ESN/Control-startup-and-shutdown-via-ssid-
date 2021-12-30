@@ -7,7 +7,7 @@
 #include "led.h"
 #include "staticConfig.h"
 #include "wifiUse.h"
-SCFG_wifiUse sWifiUseCfg;
+
 /*功能说明:
     共有两种模式
     0.常开常关模式
@@ -30,7 +30,8 @@ SCFG_wifiUse sWifiUseCfg;
 */
 
 /*基本简单的代码框架为事件驱动模型，在写函数的时候，注意不要写阻塞性的代码，如delay*/
-
+SCFG_wifiUse sWifiUseCfg;
+SCFG_mode sMode;
 Key_Parms key;
 WIFIUSE_Parms wifiuse;
 RBool isDeviceOn = RFalse;
@@ -39,16 +40,10 @@ RBool isDeviceOn = RFalse;
 #define MODE1 2
 #define MODE2 3
 #define MODE_MAX 4
-unsigned int workMode;
-/*当按键短按时*/
-void onShortPress()
+
+void modeset(void)
 {
-    workMode++;
-    if (workMode >= MODE_MAX)
-    {
-        workMode = OFF;
-    }
-    switch (workMode)
+    switch (sMode.curMode)
     {
     case OFF:
         led_set(LED_OFF);
@@ -74,6 +69,18 @@ void onShortPress()
         break;
     }
 }
+
+/*当按键短按时*/
+void onShortPress()
+{
+    sMode.curMode++;
+    if (sMode.curMode >= MODE_MAX)
+    {
+        sMode.curMode = OFF;
+    }
+    scfg_write(&sMode);
+    modeset();
+}
 /*当按键长按时发生*/
 void onLongPress()
 {
@@ -91,7 +98,7 @@ void onLongPress()
 
 void onHamFound(char *ssid)
 {
-    if (workMode == MODE2)
+    if (sMode.curMode == MODE2)
     {
         led_set(LED_ON);
         isDeviceOn = RTrue;
@@ -100,7 +107,7 @@ void onHamFound(char *ssid)
 }
 void onHamLost()
 {
-    if (workMode == MODE2)
+    if (sMode.curMode == MODE2)
     {
         led_set(LED_OFF);
         isDeviceOn = RFalse;
@@ -110,7 +117,7 @@ void onHamLost()
 
 void onLocalHamFound()
 {
-    if (workMode == MODE1)
+    if (sMode.curMode == MODE1)
     {
         led_set(LED_ON);
         isDeviceOn = RTrue;
@@ -119,7 +126,7 @@ void onLocalHamFound()
 }
 void onLocalHamLost()
 {
-    if (workMode == MODE1)
+    if (sMode.curMode == MODE1)
     {
         led_set(LED_OFF);
         isDeviceOn = RFalse;
@@ -161,7 +168,8 @@ void setup()
     wifiuse.onMatchingFinished = onMatchingFinished;
     wifiuse_init(&wifiuse);
     GTimer.begin(0, (1 * 1000 * 10), timerHandler);
-    
+    scfg_read(&sMode);
+    modeset();
 }
 
 void loop()

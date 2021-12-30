@@ -46,6 +46,7 @@ RBool wifiuse_matchingStaticSSID_isFinished(void)
 void wifiuse_matchingStaticSSID_End(void)
 {
     DLOG("End matching");
+    isScanFinished = RFalse;
     scanGapCnt = 0;
     mode = FTT;
 }
