@@ -16,5 +16,4 @@
     本项目完全开源，目前没有实现APRS功能，如果您有能力，完全可以在该模块上集成APRS功能，在PCBA上已经引出了所有引脚。
     更多有意思的功能期待您的开发。
     为了避免频繁网络检测，检测间隔设置为15秒，而检测本身会需要5秒左右。
-    PCBA查看
-    https://oshwhub.com/xifengzui/self-product-qi-ju-duan-dian-jian-ce
+   
